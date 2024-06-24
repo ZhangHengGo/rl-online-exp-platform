@@ -1,0 +1,122 @@
+/* 公共的样式 */
+
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+/* 去除a的下划线 */
+a {
+    text-decoration: none;
+    color: #333;
+}
+
+body {
+    font: 14px/1.5 Helvetica Neue, Helvetica, Arial, Microsoft Yahei, Hiragino Sans GB, Heiti SC, WenQuanYi Micro Hei, sans-serif;
+    color: #333;
+    /* min-width: 1226px; */
+}
+
+/* 整个滚动条 */
+::-webkit-scrollbar {
+    /* 对应纵向滚动条的宽度 */
+    width: 5px;
+    /* 对应横向滚动条的宽度 */
+    height: 10px;
+}
+
+/* 滚动条上的滚动滑块 */
+::-webkit-scrollbar-thumb {
+    background: rgba(157, 165, 183, 0.7);
+    border-radius: 32px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(157, 165, 183, 0.9);
+}
+
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+    border-radius: 32px;
+}
+
+/* 设置一个类，用来表示中间容器的宽度 */
+.w {
+    /* 固定容器的宽度 */
+    width: 1226px;
+    /* 设置容器居中 */
+    margin: 0 auto;
+}
+
+
+/* 弹性 */
+.flex {
+    display: flex;
+}
+
+/* 弹性居中 */
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 左浮动 */
+.float-left {
+    float: left;
+}
+
+/* 固定定位 */
+.fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+/* 100% 宽度 100%高度 */
+.maxWH {
+    width: 100%;
+    height: 100%;
+}
+
+/* 50%宽度 100%高度 */
+.halfW-and-maxH {
+    width: 50%;
+    height: 100%;
+}
+
+/* 100%宽度 50%高度 */
+.maxW-and-halfH {
+    width: 100%;
+    height: 50%;
+}
+
+/* 解决高度塌陷 + 浮动问题 */
+.clearfix::before,
+.clearfix::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+/* 单行文字溢出显示省略号 */
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 下三角形 */
+.triangle {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-top-color: transparent;
+    border-bottom-color: white;
+    z-index: 1;
+}

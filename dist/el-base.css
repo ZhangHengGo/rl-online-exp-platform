@@ -1,0 +1,12 @@
+/* elementui的公共样式表 */
+
+/* 登录页的表单label的样式 */
+/* .login-item .el-form-item__label {
+    color: #fff;
+} */
+
+/* 登录页的表单样式 */
+.login-item {
+    box-sizing: border-box;
+    padding-right: 40px;
+}
