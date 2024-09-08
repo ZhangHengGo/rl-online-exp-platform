@@ -1,0 +1,13 @@
+spring:
+  # 配置数据库
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL数据库连接所使用的JDBC驱动类
+    # 数据库地址
+    url: jdbc:mysql://115.25.41.98:2000/rl?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root # 用户名
+    password: 123456 # 密码
+
+server:
+  servlet:
+    context-path: /api
+  port: 8010 # 后端服务器端口号
