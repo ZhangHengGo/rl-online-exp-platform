@@ -98,55 +98,113 @@ public class ChannelUtil {
 //        log.info(" result:" + stringBuilder.toString());
 //        return stringBuilder.toString();
 //    }
+//    public String executeCommand(String command) {
+//        JSch jsch = new JSch(); // 创建JSch对象
+//        Session session = null; // 代表一个ssh会话，配置连接参数：用户名、密码、端口号等，并启动与远程服务器的连接
+//        Channel channel = null; // 用于执行远程命令
+//        ChannelShell shell = null; // 用于执行远程命令
+//        StringBuilder output = new StringBuilder();
+//        try {
+//            // 创建会话：用户名，主机地址，端口号
+//            session = jsch.getSession(username, host, port);
+//            // 设置密码
+//            session.setPassword(password);
+//            Properties config = new Properties();
+//            config.put("StrictHostKeyChecking", "no");
+//            // 配置：禁用严格主机密钥检查，防止首次连接主机时，需要用户验证主机密钥的情况，使自动化脚本更加便捷
+//            session.setConfig(config);
+//            // 设置超时时间：如果在50s内没有建立连接，则抛出异常
+//            session.setTimeout(50000);
+//            // 通过前面设置的参数尝试与远程服务器建立连接
+//            session.connect();
+//            channel = session.openChannel("shell");
+//            shell = (ChannelShell) channel;
+//            channel.connect();
+//
+//            OutputStream out = shell.getOutputStream();
+//            out.write(command.getBytes());
+//            out.write("\n".getBytes());
+//            out.flush();
+//
+//            InputStream in = channel.getInputStream();
+//            byte[] tmp = new byte[1024];
+//            while (true) {
+//                while (in.available() > 0) {
+//                    int i = in.read(tmp, 0, 1024);
+//                    if (i < 0) break;
+//                    String str = new String(tmp, 0, i);
+//                    output.append(str);
+//                }
+//                if (in.available() == 0) {
+//                    System.out.println("exit-status: " + channel.getExitStatus());
+//                    break;
+//                }
+//                try {
+//                    Thread.sleep(1000); // 等待1秒，以便命令执行完成
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                }
+//            }
+//            out.write("exit\n".getBytes());
+//            out.flush();
+//        }
+//        // 这意味着无论try块中发生什么类型的异常（只要它们是Exception的子类），
+//        // 都会被这个catch块处理
+//        catch (Exception e) {
+//            log.info("exec cmd error" + command);
+//        }
+//        // 不管是否发生异常，finally块中的代码总是会执行。
+//        // 这用于清理在try块中打开的资源，确保它们即使在发生异常时也能被适当关闭
+//        finally {
+//            // 关闭会话
+//            if (shell != null) {
+//                shell.disconnect();
+//            }
+//            if (session != null) {
+//                session.disconnect();
+//            }
+//        }
+//        log.info(" result:" + output.toString());
+//        return output.toString();
+//    }
     public String executeCommand(String command) {
         JSch jsch = new JSch(); // 创建JSch对象
         Session session = null; // 代表一个ssh会话，配置连接参数：用户名、密码、端口号等，并启动与远程服务器的连接
-        Channel channel = null; // 用于执行远程命令
-        ChannelShell shell = null; // 用于执行远程命令
-        StringBuilder output = new StringBuilder();
+        ChannelExec channelExec = null; // 用于执行远程命令
+        InputStream is = null; //用于接收远程命令返回的结果
+        BufferedReader reader = null; // 装饰了InputStream的读取器，用于提高读取效率
+        StringBuilder stringBuilder = new StringBuilder(); // 动态数组存储字符串，允许就地修改
         try {
             // 创建会话：用户名，主机地址，端口号
             session = jsch.getSession(username, host, port);
             // 设置密码
             session.setPassword(password);
-            Properties config = new Properties();
-            config.put("StrictHostKeyChecking", "no");
             // 配置：禁用严格主机密钥检查，防止首次连接主机时，需要用户验证主机密钥的情况，使自动化脚本更加便捷
-            session.setConfig(config);
+            session.setConfig("StrictHostKeyChecking", "no");
             // 设置超时时间：如果在50s内没有建立连接，则抛出异常
             session.setTimeout(50000);
             // 通过前面设置的参数尝试与远程服务器建立连接
             session.connect();
-            channel = session.openChannel("shell");
-            shell = (ChannelShell) channel;
-            channel.connect();
-
-            OutputStream out = shell.getOutputStream();
-            out.write(command.getBytes());
-            out.write("\n".getBytes());
-            out.flush();
-
-            InputStream in = channel.getInputStream();
-            byte[] tmp = new byte[1024];
-            while (true) {
-                while (in.available() > 0) {
-                    int i = in.read(tmp, 0, 1024);
-                    if (i < 0) break;
-                    String str = new String(tmp, 0, i);
-                    output.append(str);
-                }
-                if (in.available() == 0) {
-                    System.out.println("exit-status: " + channel.getExitStatus());
-                    break;
-                }
-                try {
-                    Thread.sleep(1000); // 等待1秒，以便命令执行完成
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+            // 用Session类的方法打开一个执行远程命令的通道
+            channelExec = (ChannelExec) session.openChannel("exec");
+            is = channelExec.getInputStream();
+            channelExec.setPty(true); // 提供一个伪终端
+            // 设置命令
+            channelExec.setCommand(command);
+            // 执行命令
+            channelExec.connect();
+            // 获取返回结果
+            // InputStream本身只能一次读取一个字节的数据，
+            // 而InputStreamReader将字节流转换成字符流，使得可以按字符而非字节来处理数据
+            // BufferedReader：对InputStreamReader的进一步封装，
+            // 提供了缓冲的读取，这意味着从输入流中读取数据时可以更高效
+            reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            // reader逐行读取数据，直到读不到数据为止
+            // 用append不用+是为了避免频繁创建和销毁对象
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
             }
-            out.write("exit\n".getBytes());
-            out.flush();
         }
         // 这意味着无论try块中发生什么类型的异常（只要它们是Exception的子类），
         // 都会被这个catch块处理
@@ -156,16 +214,21 @@ public class ChannelUtil {
         // 不管是否发生异常，finally块中的代码总是会执行。
         // 这用于清理在try块中打开的资源，确保它们即使在发生异常时也能被适当关闭
         finally {
-            // 关闭会话
-            if (shell != null) {
-                shell.disconnect();
-            }
-            if (session != null) {
-                session.disconnect();
+            assert session != null;
+            session.disconnect();
+            assert channelExec != null;
+            channelExec.disconnect();
+            try {
+                assert is != null;
+                is.close();
+                assert reader != null;
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-        log.info(" result:" + output.toString());
-        return output.toString();
+        log.info(" result:" + stringBuilder.toString());
+        return stringBuilder.toString();
     }
     // 通过SFTP（SSH文件传输协议）上传文件的Java方法
     public void uploadFile(MultipartFile file) {
@@ -314,9 +377,8 @@ public class ChannelUtil {
 
     // 创建文件夹
     public String mkDir(String dir){
-        String command = "mkdir " + dir;
-        System.out.println(command);
-        return executeCommand("mkdir aa");
+        String command = "mkdir -p " + filePath + dir;
+        return executeCommand(command);
     }
 
 

@@ -159,7 +159,7 @@ public class ExpServiceImpl implements ExpService {
         expAndContainer.setExpId(experiment.getId());
         expAndContainerMapper.insert(expAndContainer);
 
-//        System.out.println(channelUtil.mkDir("test"));
+        System.out.println(channelUtil.mkDir(path));
 //        Experiment experiment = new Experiment();
         return Result.ok("注册实验成功");
 
