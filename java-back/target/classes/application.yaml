@@ -11,3 +11,14 @@ server:
   servlet:
     context-path: /api
   port: 8010 # 后端服务器端口号
+shell:
+  host: 115.25.41.98
+  port: 22
+  username: micl
+  password: m1cl_12@2
+  file:
+    path: /home/micl/systemFileTemp/
+  docker:
+    file:
+      path: /root/
+    dockerfilePath: /home/micl/ros-web/dockerfile/

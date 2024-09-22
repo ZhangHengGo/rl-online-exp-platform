@@ -252,4 +252,11 @@ public class ChannelUtil {
     }
 
 
+    // 创建文件夹
+    public String mkDir(String dir){
+        String command = "mkdir -p " + dir;
+        return executeCommand(command);
+    }
+
+
 }

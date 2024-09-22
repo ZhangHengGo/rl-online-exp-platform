@@ -14,8 +14,6 @@ public class Experiment implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
 
-    private Integer userId;
-
     private String name;
 
     private String createTime;

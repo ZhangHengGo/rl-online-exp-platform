@@ -1,5 +1,6 @@
 package com.jhh.rl.controller;
 
+import com.jhh.rl.dto.request.RegExp;
 import com.jhh.rl.dto.response.ExpEntry;
 import com.jhh.rl.entity.Container;
 import com.jhh.rl.service.ExpService;
@@ -17,9 +18,15 @@ public class ExpController {
     private ExpService expService;
 
     @GetMapping("/exp/getexplist")
-    public Result<List<HashMap<String, Object>>> getContainerList(@RequestParam Integer userId, @RequestParam String expName)
+    public Result<List<HashMap<String, Object>>> getContainerList(@RequestParam Integer userId, @RequestParam(required = false) String expName)
     {
         return expService.getExpList(userId, expName);
+    }
+
+    @PostMapping("/exp/registerexp")
+    public Result registerExp(@RequestBody RegExp exp)
+    {
+        return expService.registerExp(exp);
     }
 
 }

@@ -1,6 +1,8 @@
 com\jhh\rl\dto\response\user\LoginResponse.class
 com\jhh\rl\dto\request\experiment\UpdateExpInfo.class
 com\jhh\rl\mapper\ImageAndContainerMapper.class
+com\jhh\rl\service\ContainerService.class
+com\jhh\rl\service\impl\ContainerServiceImpl.class
 com\jhh\rl\dto\response\notice\GetNoticeListResponse.class
 com\jhh\rl\controller\DTO\TestDTO.class
 com\jhh\rl\service\ExpService.class
@@ -8,6 +10,8 @@ com\jhh\rl\controller\ExpController.class
 com\jhh\rl\service\UserService.class
 com\jhh\rl\entity\ExpAndContainer.class
 com\jhh\rl\entity\ImageAndContainer.class
+com\jhh\rl\mapper\UserAndContainerMapper.class
+com\jhh\rl\entity\UserAndContainer.class
 com\jhh\rl\dto\request\user\UpdateEmailRequset.class
 com\jhh\rl\utils\Result.class
 com\jhh\rl\mapper\ImageAndEnvAndAlgMapper.class
@@ -16,6 +20,7 @@ com\jhh\rl\controller\TestRequestClass\UpdateTestInfo.class
 com\jhh\rl\dto\request\user\UpdateUserInfoRequset.class
 com\jhh\rl\entity\Container.class
 com\jhh\rl\service\NoticeReadHistoryService.class
+com\jhh\rl\utils\ChannelUtil.class
 com\jhh\rl\config\MybatisPlusConfig.class
 com\jhh\rl\controller\TestRequestClass\AddTest.class
 com\jhh\rl\dto\response\chart\GetExpListResponse.class
@@ -33,7 +38,9 @@ com\jhh\rl\service\AlgService.class
 com\jhh\rl\dto\response\chart\GetExpEpisodeDataResponse.class
 com\jhh\rl\entity\User.class
 com\jhh\rl\service\impl\UserServiceImpl.class
+com\jhh\rl\dto\request\RegExp.class
 com\jhh\rl\entity\Environment.class
+com\jhh\rl\controller\ContainerController.class
 com\jhh\rl\dto\request\experiment\GetExpListRequest.class
 com\jhh\rl\service\impl\ExpServiceImpl.class
 com\jhh\rl\dto\request\notice\AddNoticeRequset.class
