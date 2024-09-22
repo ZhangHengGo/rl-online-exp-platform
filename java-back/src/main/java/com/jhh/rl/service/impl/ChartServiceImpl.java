@@ -1,4 +1,4 @@
-//package com.jhh.rl.service.impl;
+package com.jhh.rl.service.impl;
 //
 //import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 //import com.jhh.rl.dto.request.chart.GetExpDatasRequest;
@@ -11,7 +11,18 @@
 //import com.jhh.rl.mapper.DatasMapper;
 //import com.jhh.rl.mapper.ExpDataMapper;
 //import com.jhh.rl.mapper.ExperimentMapper;
-//import com.jhh.rl.service.ChartService;
+import com.jhh.rl.entity.*;
+import com.jhh.rl.mapper.ExperimentMapper;
+import com.jhh.rl.service.ChartService;
+import com.jhh.rl.utils.OperateCSV;
+import com.jhh.rl.utils.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+
 //import com.jhh.rl.utils.Result;
 //import org.springframework.stereotype.Service;
 //
@@ -19,8 +30,84 @@
 //import java.util.List;
 //import java.util.stream.Collectors;
 //
-//@Service
-//public class ChartServiceImpl implements ChartService {
+@Service
+public class ChartServiceImpl implements ChartService {
+    @Override
+    public List<Reward> getChartReward(Integer experimentId) {
+        String path = "java-back/src/main/resources/folder/episode.csv";
+        OperateCSV operateCSV = new OperateCSV();
+        List<List<String>> lists = operateCSV.parseCSV(path);
+        ArrayList<Reward> rewardList = new ArrayList<Reward>();
+        for(int i = 1;i<lists.size();i++){
+            Reward reward = new Reward();
+            reward.setEpisode(Integer.parseInt(lists.get(i).get(0)));
+            reward.setReward(Float.parseFloat(lists.get(i).get(2)));
+            rewardList.add(reward);
+        }
+        return rewardList;
+    }
+
+    @Override
+    public List<Loss> getChartLoss(Integer experimentId) {
+        String path = "java-back/src/main/resources/folder/episode.csv";
+        OperateCSV operateCSV = new OperateCSV();
+        List<List<String>> lists = operateCSV.parseCSV(path);
+        ArrayList<Loss> lossList = new ArrayList<Loss>();
+        for(int i = 1;i<lists.size();i++){
+            Loss loss = new Loss();
+            loss.setEpisode(Integer.parseInt(lists.get(i).get(0)));
+            loss.setLoss(Float.parseFloat(lists.get(i).get(1)));
+            lossList.add(loss);
+        }
+        return lossList;
+    }
+
+    @Override
+    public List<Action> getChartAction(Integer episodeId) {
+        String path = "java-back/src/main/resources/folder/step.csv";
+        OperateCSV operateCSV = new OperateCSV();
+        List<List<String>> lists = operateCSV.parseCSV(path);
+        ArrayList<Action> actionList = new ArrayList<Action>();
+        for(int i = 1;i<lists.size();i++){
+            Action action = new Action();
+            action.setStep(Integer.parseInt(lists.get(i).get(0)));
+            action.setAction(lists.get(i).get(1));
+            actionList.add(action);
+        }
+        return actionList;
+    }
+
+    @Override
+    public List<Value> getChartValue(Integer episodeId) {
+        String path = "java-back/src/main/resources/folder/step.csv";
+        OperateCSV operateCSV = new OperateCSV();
+        List<List<String>> lists = operateCSV.parseCSV(path);
+        ArrayList<Value> valueList = new ArrayList<Value>();
+        for(int i = 1;i<lists.size();i++){
+            Value value = new Value();
+            value.setStep(Integer.parseInt(lists.get(i).get(0)));
+            value.setValue(Float.parseFloat(lists.get(i).get(2)));
+            valueList.add(value);
+        }
+        return valueList;
+    }
+
+    @Override
+    public QValue getChartQValue(Integer episodeId) {
+        String path = "java-back/src/main/resources/folder/step.csv";
+        OperateCSV operateCSV = new OperateCSV();
+        List<List<String>> lists = operateCSV.parseCSV(path);
+        QValue qValue = new QValue();
+        Float[][] res = new Float[lists.size()-1][4];
+        for(int i = 1;i<lists.size();i++){
+            res[i-1][0] = Float.parseFloat(lists.get(i).get(3));
+            res[i-1][1] = Float.parseFloat(lists.get(i).get(4));
+            res[i-1][2] = Float.parseFloat(lists.get(i).get(5));
+            res[i-1][3] = Float.parseFloat(lists.get(i).get(5));
+        }
+        qValue.setQValue(res);
+        return qValue;
+    }
 //    @Resource
 //    private AlgDataMapper algDataMapper;
 //    @Resource
@@ -131,4 +218,4 @@
 //
 //        return doubleArray;
 //    }
-//}
+}
