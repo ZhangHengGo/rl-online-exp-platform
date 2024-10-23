@@ -10,6 +10,6 @@ public class CreateContainer {
     private String name;
     private Integer userId;
     private Integer imageId;
-    private List<PortMapping> portList;
+    private List<PortMapping> portMappingList;
     private String extraConfig;
 }

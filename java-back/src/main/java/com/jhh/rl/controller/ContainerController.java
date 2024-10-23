@@ -1,14 +1,14 @@
 package com.jhh.rl.controller;
 
 import com.jhh.rl.dto.request.CreateContainer;
-import com.jhh.rl.dto.request.RegExp;
+
 import com.jhh.rl.entity.Container;
 import com.jhh.rl.service.ContainerService;
-import com.jhh.rl.service.ExpService;
 import com.jhh.rl.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,15 +20,15 @@ public class ContainerController {
     @Autowired
     private ContainerService containerService;
 
-    @GetMapping("/getcontainerlist")
-    public Result<List<Container>> registerExp(@RequestParam Integer userId)
+    @GetMapping("/list")
+    public Result<List<HashMap<String, Object>>> registerExp(@RequestParam Integer userId)
     {
         return containerService.getContainerList(userId);
     }
 
     // 创建容器
     @PostMapping("/create")
-    public Result add(@RequestBody CreateContainer createContainer)
+    public Result create(@RequestBody CreateContainer createContainer)
     {
 //        SysUser user = (SysUser) session.getAttribute("user");
 //        if (user.getRole()==2) {

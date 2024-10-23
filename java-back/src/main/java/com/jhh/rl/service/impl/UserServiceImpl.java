@@ -322,7 +322,7 @@ public class UserServiceImpl implements UserService {
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUserId(user.getId());
         loginResponse.setUsername(user.getUsername());
-        loginResponse.setIdentity(user.getIdentity());
+        loginResponse.setAdmin(true);
         loginResponse.setAccount(user.getAccount());
         loginResponse.setPassword("");
         loginResponse.setUserStatus(user.getUserStatus());

@@ -1,7 +1,5 @@
 package com.jhh.rl.service;
-
-import com.jhh.rl.entity.Image;
-import com.jhh.rl.entity.ImageAndEnv;
+import com.jhh.rl.dto.response.ImageEntry;
 
 import java.util.List;
 
@@ -12,5 +10,5 @@ import java.util.List;
  * @version: 1.0
  */
 public interface ImageService {
-    List<ImageAndEnv> getImages(Integer userId);
+    List<ImageEntry> getImages(Integer userId);
 }

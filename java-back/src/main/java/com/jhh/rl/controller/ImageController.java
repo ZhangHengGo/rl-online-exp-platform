@@ -1,6 +1,6 @@
 package com.jhh.rl.controller;
 
-import com.jhh.rl.entity.ImageAndEnv;
+import com.jhh.rl.dto.response.ImageEntry;
 import com.jhh.rl.entity.Reward;
 import com.jhh.rl.service.ImageService;
 import com.jhh.rl.utils.Result;
@@ -24,8 +24,8 @@ public class ImageController {
     private ImageService imageService;
 
     @GetMapping("/image/list")
-    public Result getChartReward(@RequestParam Integer userId){
-        List<ImageAndEnv> imageAndEnvList = imageService.getImages(userId);
+    public Result getChartReward(@RequestParam(required = false) Integer userId, @RequestParam Integer pageIndex, @RequestParam Integer pageSize){
+        List<ImageEntry> imageAndEnvList = imageService.getImages(userId);
         return Result.ok("ok", imageAndEnvList);
     }
 }

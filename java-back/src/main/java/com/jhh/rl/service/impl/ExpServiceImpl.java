@@ -79,7 +79,7 @@ public class ExpServiceImpl implements ExpService {
                         selectOne(new QueryWrapper<ImageAndContainer>().eq("container_id", containerId));
                 Integer imageId = imageAndContainer.getImageId();
                 Image image = imageMapper.selectById(imageId);
-                String imageName = image.getName();
+                String imageName = image.getVersion();
 
                 ImageAndEnvAndAlg imageAndEnvAndAlg = imageAndEnvAndAlgMapper.
                         selectOne(new QueryWrapper<ImageAndEnvAndAlg>().eq("image_id", imageId));

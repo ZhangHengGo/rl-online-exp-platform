@@ -5,11 +5,12 @@ import com.jhh.rl.dto.request.RegExp;
 import com.jhh.rl.entity.Container;
 import com.jhh.rl.utils.Result;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface ContainerService {
 
-    Result<List<Container>> getContainerList(Integer userId);
+    Result<List<HashMap<String, Object>>> getContainerList(Integer userId);
 
     Result create(CreateContainer createContainer);
 

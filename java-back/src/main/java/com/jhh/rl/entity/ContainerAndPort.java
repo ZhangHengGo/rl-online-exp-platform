@@ -9,8 +9,7 @@ import java.io.Serializable;
 @Data
 @TableName("container_port")
 public class ContainerAndPort implements Serializable {
-    private Integer port;
-
+    private Integer internalPort;
+    private Integer externalPort;
     private String containerId;
-
 }

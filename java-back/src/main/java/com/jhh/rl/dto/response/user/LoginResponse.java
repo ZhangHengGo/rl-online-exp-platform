@@ -8,7 +8,7 @@ public class LoginResponse {
 
     private String username;
 
-    private String identity;
+    private Boolean admin;
 
     private String account;
 

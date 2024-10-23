@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jhh.rl.dto.request.CreateContainer;
 import com.jhh.rl.dto.request.RegExp;
 import com.jhh.rl.entity.*;
-import com.jhh.rl.mapper.ContainerAndPortMapper;
-import com.jhh.rl.mapper.ContainerMapper;
-import com.jhh.rl.mapper.ImageMapper;
-import com.jhh.rl.mapper.UserAndContainerMapper;
+import com.jhh.rl.mapper.*;
 import com.jhh.rl.service.ContainerService;
 import com.jhh.rl.service.ExperimentService;
 import com.jhh.rl.utils.ChannelUtil;
@@ -35,22 +32,59 @@ public class ContainerServiceImpl implements ContainerService {
     private ChannelUtil channelUtil;
 
     @Resource
+    private UserMapper userMapper;
+
+    @Resource
     private ContainerAndPortMapper containerAndPortMapper;
 
-    public Result<List<Container>> getContainerList(Integer userId){
+    @Resource
+    private ImageAndContainerMapper imageAndContainerMapper;
+
+    public Result<List<HashMap<String, Object>>> getContainerList(Integer userId){
 
         // 查找
-        QueryWrapper<UserAndContainer> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<Container> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
-        List<UserAndContainer> userAndContainerList = userAndContainerMapper.selectList(queryWrapper);
+        List<Container> containerList = containerMapper.selectList(queryWrapper);
         // 处理
-        if (userAndContainerList != null && !userAndContainerList.isEmpty()){
-            List<Container> resultList = new ArrayList<>();
-            for(UserAndContainer userContainer : userAndContainerList){
+        if (containerList != null && !containerList.isEmpty()){
+            List<HashMap<String, Object>> resultList = new ArrayList<>();
+            for(Container container : containerList){
                 HashMap<String, Object> entry = new HashMap<>();
-                Integer containerId = userContainer.getContainerId();
-                Container container = containerMapper.selectById(containerId);
-                resultList.add(container);
+                String containerId = container.getId();
+                Integer userId1 = container.getUserId();
+                String createTime = container.getCreateTime();
+                Integer status = container.getStatus();
+                String userName = userMapper.selectById(userId1).getUsername();
+                entry.put("containerId", containerId);
+                entry.put("createTime", createTime);
+                entry.put("status", status);
+                entry.put("userName", userName);
+                QueryWrapper<ImageAndContainer> queryWrapper1 = new QueryWrapper<>();
+                queryWrapper.eq("containerId", containerId);
+                List<ImageAndContainer> imageAndContainerList = imageAndContainerMapper.selectList(queryWrapper1);
+                if(imageAndContainerList != null && !imageAndContainerList.isEmpty()){
+                    for(ImageAndContainer imageAndContainer : imageAndContainerList){
+                        Integer imageId = imageAndContainer.getImageId();
+                        String imageVersion = imageMapper.selectById(imageId).getVersion();
+                        entry.put("imageId", imageId);
+                        entry.put("imageVersion", imageVersion);
+                        QueryWrapper<ContainerAndPort> queryWrapper2 = new QueryWrapper<>();
+                        queryWrapper2.eq("containerId", containerId);
+                        List<ContainerAndPort> containerAndPortList = containerAndPortMapper.selectList(queryWrapper2);
+                        if(containerAndPortList != null && !containerAndPortList.isEmpty()){
+                            List<PortMapping> portMappingList = new ArrayList<>();
+                            for(ContainerAndPort containerAndPort : containerAndPortList){
+                                PortMapping portMapping = new PortMapping();
+                                portMapping.setInternal(containerAndPort.getInternalPort());
+                                portMapping.setInternal(containerAndPort.getInternalPort());
+                                portMappingList.add(portMapping);
+                            }
+                            entry.put("portMappingList", portMappingList);
+                        }
+                        resultList.add(entry);
+                    }
+                }
             }
             return Result.ok("查询容器列表成功", resultList);
         }
@@ -75,7 +109,7 @@ public class ContainerServiceImpl implements ContainerService {
 
         // ports现在是PortMapping对象的列表
         // 取出端口号
-        List<PortMapping> portMappings = createContainer.getPortList();
+        List<PortMapping> portMappings = createContainer.getPortMappingList();
         Set<Integer> uniqueExternalPorts = new HashSet<>();
         Set<Integer> uniqueInternalPorts = new HashSet<>();
         Set<Integer> duplicatePorts = new HashSet<>();
@@ -101,7 +135,7 @@ public class ContainerServiceImpl implements ContainerService {
             if (externalPort < 1024) {
                 return Result.fail("不允许使用该范围端口!");
             }
-            queryWrapper1.eq("port", externalPort);
+            queryWrapper1.eq("external_port", externalPort);
             Long count1 = containerAndPortMapper.selectCount(queryWrapper1);
 
             // 端口占用检测
@@ -127,6 +161,7 @@ public class ContainerServiceImpl implements ContainerService {
         String containerId = channelUtil.runDocker(config, container.getName(), im.getVersion());
         ; // 生成容器ID的逻辑需要根据实际需求修改
         containerId = containerId.substring(0, 12);
+        System.out.println(containerId);
         // System.out.println(dockerService.runDocker(8014,"wdd",0));
         // String dockerID = dockerService.runDocker(sysContainer.getPort(),
         // sysContainer.getContainerName(), sysContainer.getVersionId()); // 异步启动容器
@@ -150,7 +185,7 @@ public class ContainerServiceImpl implements ContainerService {
         for (Integer port : uniqueExternalPorts) {
             ContainerAndPort containerAndPort = new ContainerAndPort();
             containerAndPort.setContainerId(containerId);
-            containerAndPort.setPort(port);
+            containerAndPort.setExternalPort(port);
 
             int portInsertResult = containerAndPortMapper.insert(containerAndPort);
 
