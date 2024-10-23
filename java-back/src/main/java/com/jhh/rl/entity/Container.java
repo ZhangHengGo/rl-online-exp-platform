@@ -12,7 +12,7 @@ import java.io.Serializable;
 @TableName("container")
 public class Container implements Serializable {
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private String id;
 
     private String name;
 

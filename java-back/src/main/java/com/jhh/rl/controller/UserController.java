@@ -25,6 +25,7 @@ public class UserController {
         @RequestBody 告诉 Spring 框架需要将 HTTP 请求体中的 JSON 或 XML 数据转换为 Java 对象
         @Validated 可以用Login类的规则进行数据验证
         */
+        System.out.println("请求");
         return userService.findUserByAccount(login);
 
     }

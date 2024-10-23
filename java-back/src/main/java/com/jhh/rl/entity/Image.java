@@ -14,8 +14,6 @@ public class Image implements Serializable {
     @TableId(type = IdType.AUTO) // 指定这个属性是数据库表的主键，并且主键的生成策略是自增
     private Integer id;
 
-    private String name;
-
     private String version;
 
     private Integer makeUserId;

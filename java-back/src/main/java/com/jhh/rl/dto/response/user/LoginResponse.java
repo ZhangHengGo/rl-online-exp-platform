@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class LoginResponse {
-    private Integer user_id;
+    private Integer userId;
 
     private String username;
 
@@ -14,9 +14,9 @@ public class LoginResponse {
 
     private String password;
 
-    private String user_status;
+    private String userStatus;
 
-    private String create_time;
+    private String createTime;
 
-    private String login_time;
+    private String loginTime;
 }

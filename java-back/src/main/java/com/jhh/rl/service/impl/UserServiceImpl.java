@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.jhh.rl.dto.response.UserLogin;
 import com.jhh.rl.dto.response.user.LoginResponse;
 import com.jhh.rl.dto.request.user.*;
 import com.jhh.rl.entity.User;
@@ -82,6 +83,7 @@ public class UserServiceImpl implements UserService {
         if (updateCount > 0) {
             // 更新成功的处理
             LoginResponse loginResponse = getLoginResponse(user, formattedLoginTime);
+            UserLogin userLogin = new UserLogin();
             return Result.ok("登录成功", loginResponse);
         } else {
             // 更新失败的处理
@@ -318,16 +320,17 @@ public class UserServiceImpl implements UserService {
     @NotNull
     private static LoginResponse getLoginResponse(User user, String formattedLoginTime) {
         LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setUser_id(user.getId());
+        loginResponse.setUserId(user.getId());
         loginResponse.setUsername(user.getUsername());
         loginResponse.setIdentity(user.getIdentity());
         loginResponse.setAccount(user.getAccount());
         loginResponse.setPassword("");
-        loginResponse.setUser_status(user.getUserStatus());
-        loginResponse.setCreate_time(user.getCreateTime());
-        loginResponse.setLogin_time(formattedLoginTime);
+        loginResponse.setUserStatus(user.getUserStatus());
+        loginResponse.setCreateTime(user.getCreateTime());
+        loginResponse.setLoginTime(formattedLoginTime);
         return loginResponse;
     }
+
 
 
 }

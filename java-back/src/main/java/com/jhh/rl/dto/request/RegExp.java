@@ -11,14 +11,11 @@ public class RegExp {
     private Integer userId;
 
     @NotNull
-    private String expNote;
+    private String note;
 
     @NotNull
     private String expName;
 
     @NotNull
     private Integer containerId;
-
-    @NotNull
-    private String containerName;
 }

@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.Vector;
 
 @Slf4j
 @Component
@@ -379,6 +380,83 @@ public class ChannelUtil {
     public String mkDir(String dir){
         String command = "mkdir -p " + filePath + dir;
         return executeCommand(command);
+    }
+
+
+    public String downloadFileFromRemote(String dir){
+        JSch jsch = new JSch();
+        Session session = null;
+        Channel channel = null;
+        ChannelSftp sftpChannel = null;
+
+        try {
+            session = jsch.getSession(username, host, port);
+            session.setPassword(password);
+            java.util.Properties config = new java.util.Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+            session.connect();
+
+            channel = session.openChannel("sftp");
+            channel.connect();
+            sftpChannel = (ChannelSftp) channel;
+
+            String remoteFolderPath = "/home/micl/systemFileTemp/1/1/" + dir + "/";
+            Vector<ChannelSftp.LsEntry> fileList = sftpChannel.ls(remoteFolderPath);
+            String localFolderPath = "D:\\xianshangpingtai\\rl-online-exp-platform\\rl-back\\java-back\\src\\main\\resources\\folder";
+
+            // 开始递归下载文件和文件夹
+            downloadFolder(sftpChannel, remoteFolderPath, localFolderPath);
+
+            // 关闭SFTP通道和会话
+            sftpChannel.exit();
+            session.disconnect();
+
+            System.out.println("File downloaded successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (sftpChannel != null) sftpChannel.exit();
+            if (channel != null) channel.disconnect();
+            if (session != null) session.disconnect();
+        }
+        return "ok";
+    }
+
+    public static void downloadFolder(ChannelSftp sftpChannel, String remoteFolderPath, String localFolderPath) throws SftpException, IOException {
+        Vector<ChannelSftp.LsEntry> fileList = sftpChannel.ls(remoteFolderPath);
+
+        // 确保本地文件夹存在
+        File localFolder = new File(localFolderPath);
+        if (!localFolder.exists()) {
+            localFolder.mkdirs();
+        }
+
+        // 遍历远程文件列表
+        for (ChannelSftp.LsEntry entry : fileList) {
+            String remoteFilePath = remoteFolderPath + "/" + entry.getFilename();
+            String localFilePath = localFolderPath + File.separator + entry.getFilename();
+
+            if (entry.getAttrs().isDir()) {
+                // 跳过 "." 和 ".." 目录
+                if (!entry.getFilename().equals(".") && !entry.getFilename().equals("..")) {
+                    // 如果是目录，递归处理
+                    downloadFolder(sftpChannel, remoteFilePath, localFilePath);
+                }
+            } else {
+                // 如果是文件，下载文件
+                System.out.println("Downloading file: " + remoteFilePath + " to " + localFilePath);
+                try (InputStream inputStream = sftpChannel.get(remoteFilePath);
+                     FileOutputStream outputStream = new FileOutputStream(localFilePath)) {
+
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                }
+            }
+        }
     }
 
 

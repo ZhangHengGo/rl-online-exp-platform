@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class Result<T> {
-    private Integer status; // 状态码
+    private Integer code; // 状态码
 
     private String msg; // 解释信息
 
@@ -17,21 +17,21 @@ public class Result<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer count; // 数据的数量
 
-    public Result(Integer status, String msg, T data, Integer count) {
-        this.status = status;
+    public Result(Integer code, String msg, T data, Integer count) {
+        this.code = code;
         this.msg = msg;
         this.data = data;
         this.count = count;
     }
 
-    private Result(Integer status, String msg, T data) {
-        this.status = status;
+    private Result(Integer code, String msg, T data) {
+        this.code = code;
         this.msg = msg;
         this.data = data;
     }
 
-    public Result(Integer status, String msg) {
-        this.status = status;
+    public Result(Integer code, String msg) {
+        this.code = code;
         this.msg = msg;
     }
 

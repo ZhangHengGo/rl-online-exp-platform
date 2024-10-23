@@ -2,26 +2,17 @@ package com.jhh.rl.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jhh.rl.dto.request.RegExp;
-import com.jhh.rl.dto.response.ExpEntry;
 import com.jhh.rl.entity.*;
 import com.jhh.rl.mapper.*;
 import com.jhh.rl.service.ExpService;
 import com.jhh.rl.utils.ChannelUtil;
 import com.jhh.rl.utils.Result;
-import com.sun.org.apache.xpath.internal.objects.XNull;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.channels.Channel;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class ExpServiceImpl implements ExpService {
@@ -58,7 +49,15 @@ public class ExpServiceImpl implements ExpService {
 
 
     @Override
-    public Result<List<HashMap<String, Object>>> getExpList(Integer userId, String expName) {
+    public Result<HashMap<String, Object>> getExpList(Integer userId,
+                                                      Integer pageIndex,
+                                                      Integer pageSize,
+                                                      String expName,
+                                                      String containerName,
+                                                      String expNote,
+                                                      String envName,
+                                                      String expStatus) {
+        HashMap<String, Object> result = new HashMap<>();
         // 查询实验表的条件
         QueryWrapper<UserAndContainer> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
@@ -73,7 +72,7 @@ public class ExpServiceImpl implements ExpService {
                 Integer containerId = userAndContainer.getContainerId();
                 // 查找容器
                 Container container = containerMapper.selectById(containerId);
-                String containerName = container.getName();
+                String containerName0 = container.getName();
 
                 // 查找镜像
                 ImageAndContainer imageAndContainer = imageAndContainerMapper.
@@ -113,24 +112,60 @@ public class ExpServiceImpl implements ExpService {
                             HashMap<String, Object> entry = new HashMap<>();
                             entry.put("id", exp.getId());
                             entry.put("userId", userId);
-                            entry.put("name", exp.getName());
+                            entry.put("expName", exp.getName());
                             entry.put("createTime", exp.getCreateTime());
                             entry.put("status", exp.getStatus());
                             entry.put("dataPath", exp.getDataPath());
                             entry.put("note", exp.getNote());
                             entry.put("containerId", containerId);
-                            entry.put("containerName", containerName);
+                            entry.put("containerName", containerName0);
                             entry.put("algId", algId);
                             entry.put("algName", algorithmName);
                             entry.put("envId", envId);
                             entry.put("envName", experimentName);
                             entry.put("imageName", imageName);
-                            resultList.add(entry);
+                            boolean sign = true;
+                            if (containerName != null && !containerName.isEmpty()) {
+                                if (containerName0 != null && !containerName0.contains(containerName)) {
+                                    sign = false;
+                                }
+                            }
+                            if (expName != null && !expName.isEmpty()) {
+                                if (exp.getName() != null && !exp.getName().contains(expName)) {
+                                    sign = false;
+                                }
+                            }
+                            if (expName != null && !expName.isEmpty()) {
+                                if (exp.getName() != null && !exp.getName().contains(expName)) {
+                                    sign = false;
+                                }
+                            }
+                            if (expNote != null && !expNote.isEmpty()) {
+                                if (exp.getNote() != null && !exp.getNote().contains(expNote)) {
+                                    sign = false;
+                                }
+                            }
+                            if (envName != null && !envName.isEmpty()) {
+                                if (experimentName != null && !experimentName.contains(envName)) {
+                                    sign = false;
+                                }
+                            }
+                            // TODO
+//                            if (expStatus != null && !expStatus.isEmpty()) {
+//                                if (Objects.equals(exp.getStatus(), expStatus)) {
+//                                    sign = false;
+//                                }
+//                            }
+                            if (sign){
+                                resultList.add(entry);
+                            }
                         }
                     }
+                    result.put("list", paginate(resultList, pageIndex, pageSize));
+                    result.put("total", resultList.size());
                 }
             }
-            return Result.ok("ok", resultList);
+            return Result.ok("ok", result);
         }
 
 
@@ -138,12 +173,15 @@ public class ExpServiceImpl implements ExpService {
 
     @Override
     public Result registerExp(RegExp exp){
-
         Integer userId = exp.getUserId();
         Integer containerId = exp.getContainerId();
         String name = exp.getExpName();
-        String note = exp.getExpNote();
-        String createTime = "今年";
+        String note = exp.getNote();
+        // 时间
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss");
+        String createTime = now.format(formatter);
+
         String path = userId.toString() + "/" + containerId.toString() + "/" + name;
 
         Experiment experiment = new Experiment();
@@ -159,10 +197,23 @@ public class ExpServiceImpl implements ExpService {
         expAndContainer.setExpId(experiment.getId());
         expAndContainerMapper.insert(expAndContainer);
 
-        System.out.println(channelUtil.mkDir(path));
-//        Experiment experiment = new Experiment();
+        channelUtil.downloadFileFromRemote(name);
+
         return Result.ok("注册实验成功");
+    }
 
+    public static List<HashMap<String, Object>> paginate(List<HashMap<String, Object>> resultList, Integer pageIndex, Integer pageSize) {
+        // 计算起始索引
+        int startIndex = (pageIndex - 1) * pageSize;
+        // 计算结束索引，确保不超出 resultList 大小
+        int endIndex = Math.min(startIndex + pageSize, resultList.size());
 
+        // 检查起始索引是否合法
+        if (startIndex > resultList.size()) {
+            return Collections.emptyList();  // 如果起始索引超出结果集大小，返回空列表
+        }
+
+        // 返回分页后的子列表
+        return resultList.subList(startIndex, endIndex);
     }
 }
